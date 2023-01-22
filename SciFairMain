@@ -1,0 +1,97 @@
+#include <NewPing.h>
+#include <math.h>
+#include <Servo.h>
+int motorLeftPin = 3;   
+int motorRightPin = 5; 
+
+int waveLength = 0;
+
+NewPing sonar(8, 9, 600); // NewPing setup of pins and maximum distance.
+
+float factor = sqrt(1 + 18 / 273.15) / 60.368; // Speed of sound calculation based on temperature.
+
+float detectedDistance;
+
+float testDist;
+
+Servo motorLeft;
+Servo motorRight;
+
+int speedLeft = 1200;
+int speedRight = 1200;
+const int numReadings = 10;
+
+int readingsMid[numReadings];      // the readings from the analog input
+int readIndexMid = 0;              // the index of the current reading
+int totalMid = 0;                  // the running total
+int averageMid = 0;                // the average
+
+int avReadingsMid[numReadings];      // the readings from the analog input
+int avReadIndexMid = 0;              // the index of the current reading
+
+float midDist;
+
+void setup() {
+  motorLeft.attach(motorLeftPin);
+
+  motorRight.attach(motorRightPin);
+
+  motorLeft.writeMicroseconds(1500);
+
+  motorRight.writeMicroseconds(1500);
+
+   for (int thisReadingMid = 0; thisReadingMid < numReadings; thisReadingMid++) {
+    readingsMid[thisReadingMid] = 0;
+  }
+
+  Serial.begin(9600);
+}
+
+void loop() {
+  //detectedDistance = sonar.ping_median(5) * factor;
+  testDist = sonar.ping_cm();
+  if(testDist > 1.0){detectedDistance = testDist;}
+
+  totalMid = totalMid - readingsMid[readIndexMid];
+  // read from the sensor:
+  if(detectedDistance>20.0){readingsMid[readIndexMid] = detectedDistance;}
+  // add the reading to the total:
+  totalMid = totalMid + readingsMid[readIndexMid];
+  // advance to the next position in the array:
+  readIndexMid = readIndexMid + 1;
+  if (readIndexMid >= numReadings) {
+    //wrap around to the beginning:
+    readIndexMid = 0;
+  }
+
+  // calculate the average:
+  averageMid = totalMid / numReadings;
+  midDist = averageMid;
+
+  //delay(20);
+  Serial.print(detectedDistance);
+  Serial.print(" - ");
+  Serial.println(midDist);
+  if(midDist < 50&& midDist > 1.0){
+
+    if(speedLeft <1550){speedLeft+=10;}
+    if(speedRight <1450){speedRight+=10;}
+
+    motorLeft.writeMicroseconds(speedLeft);//1550
+    motorRight.writeMicroseconds(speedRight);//1450
+  }
+  else{
+
+    if(speedLeft >1200){speedLeft-=10;}
+    if(speedRight >1200){speedRight-=10;}
+    motorLeft.writeMicroseconds(speedLeft);
+    motorRight.writeMicroseconds(speedRight);
+  }
+  //speedLeft+=10;
+  //  if(detectedDistance > 40.0){
+  //    speedLeft = 1800;
+  //  }
+ 
+
+ }
+ 
