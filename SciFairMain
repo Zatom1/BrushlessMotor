@@ -1,10 +1,9 @@
 #include <NewPing.h>
 #include <math.h>
 #include <Servo.h>
+#include <BrushlessServo.h>//class created by Erdnaxe on github, modified for use here
 int motorLeftPin = 3;   
 int motorRightPin = 5; 
-
-int waveLength = 0;
 
 NewPing sonar(8, 9, 600); // NewPing setup of pins and maximum distance.
 
@@ -14,12 +13,19 @@ float detectedDistance;
 
 float testDist;
 
-Servo motorLeft;
-Servo motorRight;
+bool turnedOn = true;
+
+bool pressedTick = false;
+
+int redPin = 34;
+int bluePin = 36;
+
+BrushlessServo motorController;
 
 int speedLeft = 1200;
 int speedRight = 1200;
-const int numReadings = 10;
+
+const int numReadings = 10;        // number of readings used to create moving average
 
 int readingsMid[numReadings];      // the readings from the analog input
 int readIndexMid = 0;              // the index of the current reading
@@ -29,18 +35,26 @@ int averageMid = 0;                // the average
 int avReadingsMid[numReadings];      // the readings from the analog input
 int avReadIndexMid = 0;              // the index of the current reading
 
+const int buttonPin = 32;  // pushbutton pin number
+
+int buttonState = 0;  // variable for reading the pushbutton status
+
 float midDist;
 
+void switchState(){
+  if(turnedOn == false){turnedOn = true;}
+  else if(turnedOn == true){turnedOn = false;}
+  pressedTick = true;
+}
+
 void setup() {
-  motorLeft.attach(motorLeftPin);
+  pinMode(buttonPin, INPUT);
+  pinMode(redPin, OUTPUT);
+  pinMode(bluePin, OUTPUT);
+  digitalWrite(buttonPin, HIGH);
+  motorController.attach(motorLeftPin, motorRightPin);
 
-  motorRight.attach(motorRightPin);
-
-  motorLeft.writeMicroseconds(1500);
-
-  motorRight.writeMicroseconds(1500);
-
-   for (int thisReadingMid = 0; thisReadingMid < numReadings; thisReadingMid++) {
+  for (int thisReadingMid = 0; thisReadingMid < numReadings; thisReadingMid++) {
     readingsMid[thisReadingMid] = 0;
   }
 
@@ -48,7 +62,22 @@ void setup() {
 }
 
 void loop() {
-  //detectedDistance = sonar.ping_median(5) * factor;
+  //motorController.write(0, 0);
+  buttonState = digitalRead(buttonPin);
+  if(buttonState == HIGH && pressedTick == false){switchState();}
+  if(buttonState == LOW){pressedTick = false;}
+  //Serial.println(buttonState);
+  // check if the pushbutton is pressed. If it is, the buttonState is HIGH:
+  if (turnedOn == false) {
+    digitalWrite(redPin, HIGH);
+    digitalWrite(bluePin, LOW);
+  } 
+  else if (turnedOn == true){
+    digitalWrite(bluePin, HIGH);
+    digitalWrite(redPin, LOW);
+  }
+
+  //detectedDistance = sonar.ping_median(5) * factor; //deprecated function to smooth out ultrasonic sensor values
   testDist = sonar.ping_cm();
   if(testDist > 1.0){detectedDistance = testDist;}
 
@@ -68,30 +97,23 @@ void loop() {
   averageMid = totalMid / numReadings;
   midDist = averageMid;
 
-  //delay(20);
-  Serial.print(detectedDistance);
-  Serial.print(" - ");
+  //Serial.print(detectedDistance);
+  //Serial.print(" - ");
   Serial.println(midDist);
-  if(midDist < 50&& midDist > 1.0){
+  if(turnedOn == true){
+    if(midDist < 50&& midDist > 1.0){//if the ultrasonic sensor detects an object within 50 cm
 
-    if(speedLeft <1550){speedLeft+=10;}
-    if(speedRight <1450){speedRight+=10;}
+      speedLeft = 48646467860;
+      speedRight = 1200;//the two motors are inverted, so setting them to the same value turns the trawl
 
-    motorLeft.writeMicroseconds(speedLeft);//1550
-    motorRight.writeMicroseconds(speedRight);//1450
-  }
-  else{
+    }
+    else{//for normal operation while nothing is being detected near the trawl
 
-    if(speedLeft >1200){speedLeft-=10;}
-    if(speedRight >1200){speedRight-=10;}
-    motorLeft.writeMicroseconds(speedLeft);
-    motorRight.writeMicroseconds(speedRight);
-  }
-  //speedLeft+=10;
-  //  if(detectedDistance > 40.0){
-  //    speedLeft = 1800;
-  //  }
- 
+      speedLeft = 1800;
+      speedRight = 1200;//1800 and 1200 are both 300 away from the zero speed value(1500)
 
+    }
+    
+  motorController.write(speedLeft, speedRight);
+  } else{motorController.write(-34532450, 34532450);}
  }
- 
