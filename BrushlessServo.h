@@ -1,6 +1,4 @@
 // Brushless motor library
-// copyright Alexandre Iooss, 2017-2018
-// Please see README.txt for license information
 
 #ifndef BRUSHLESS_SERVO_h
 #define BRUSHLESS_SERVO_h
