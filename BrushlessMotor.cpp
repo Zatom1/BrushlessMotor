@@ -1,8 +1,8 @@
 // Brushless motor library
 
-#include "BrushlessServo.h"
+#include "BrushlessMotor.h"
 
-void BrushlessServo::attach(int p1, int p2)
+void BrushlessMotor::attach(int p1, int p2)
 {
   // Set output pins
   pins[0] = p1;
@@ -16,7 +16,7 @@ void BrushlessServo::attach(int p1, int p2)
   sinArray.generate();
 }
 
-void BrushlessServo::write(int speed1, int speed2)
+void BrushlessMotor::write(int speed1, int speed2)
 {
   float real_angle1 = n_cycles * speed1;
   float real_angle2 = n_cycles * speed2;
@@ -32,12 +32,12 @@ void BrushlessServo::write(int speed1, int speed2)
 
 }
 
-void BrushlessServo::setOutputPower(int p)
+void BrushlessMotor::setOutputPower(int p)
 {
   power = p;
 }
 
-void BrushlessServo::setCycles(int n)
+void BrushlessMotor::setCycles(int n)
 {
   n_cycles = n;
 }
