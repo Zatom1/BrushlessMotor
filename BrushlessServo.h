@@ -1,7 +1,7 @@
 // Brushless motor library
 
-#ifndef BRUSHLESS_SERVO_h
-#define BRUSHLESS_SERVO_h
+#ifndef BRUSHLESS_MOTOR_h
+#define BRUSHLESS_MOTOR_h
 
 #include "Arduino.h"
 #include "SinArray.h"
@@ -10,7 +10,7 @@
 #define PWMRANGE 255 // Default for ATMEGA328
 #endif
 
-class BrushlessServo
+class BrushlessMotor
 {
 public:
   void attach(int p1, int p2); // Initialization
