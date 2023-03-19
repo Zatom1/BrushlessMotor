@@ -1,7 +1,7 @@
 #include <NewPing.h>
 #include <math.h>
 #include <Servo.h>
-#include <BrushlessServo.h>//class created by Erdnaxe on github, modified for use here
+#include <BrushlessMotor.h>
 int motorLeftPin = 3;   
 int motorRightPin = 5; 
 
@@ -20,7 +20,7 @@ bool pressedTick = false;
 int redPin = 34;
 int bluePin = 36;
 
-BrushlessServo motorController;
+BrushlessMotor motorController;
 
 int speedLeft = 1200;
 int speedRight = 1200;
