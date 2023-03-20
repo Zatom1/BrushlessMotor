@@ -1,7 +1,7 @@
 # BrushlessMotor
 Creates a brushless motor controller which can individually control two different motors using PWM.
 
-Library created by Zee for use in the ISEF project "A Novel Application of Filtration for the Collection of Microplastics in Waterways"
+Library created by Zatom1 for use in the ISEF project "A Novel Application of Filtration for the Collection of Microplastics in Waterways"
 
 Defines a BrushlessMotor object which can be used to control two PWM motors using open-loop control. 
 
